@@ -44,103 +44,133 @@ Leadership has identified five critical business questions that, if answered rel
 
 | Analytics Type | Question Answered | How It Is Delivered in This Platform |
 |----------------|-------------------|--------------------------------------|
-| **Descriptive** | What happened? | Power BI dashboards on Gold features (spend, orders, tickets, segments) |
-| **Diagnostic** | Why did it happen? | Drill-down analysis, cohort views, and driver exploration in Power BI |
-| **Predictive** | What will happen? | EDA + ML Pipeline with regression models predicting CLV and related outcomes |
-| **Prescriptive** | What should we do? | Generative AI / RAG agent recommending next-best actions based on predictions |
+| **Descriptive** | What happened? | Power BI dashboards on Gold features |
+| **Diagnostic** | Why did it happen? | Drill-down analysis and driver exploration |
+| **Predictive** | What will happen? | EDA + ML Pipeline with regression models |
+| **Prescriptive** | What should we do? | Generative AI / RAG agent recommendations |
+
+---
+
+## Key Metrics & Success Criteria
+
+| Metric | Target | Purpose |
+|--------|--------|---------|
+| CLV Model RMSE | < 15% of mean CLV | Prediction accuracy |
+| R² Score | > 0.75 | Explanatory power |
+| Forecast MAPE | < 10% | Quarterly revenue reliability |
+| High-value retention lift | +8–12% | Business impact |
+| Score coverage | > 95% of active customers | Operational completeness |
+
+---
+
+## Variable Dictionary (Gold Layer)
+
+| Feature | Type | Description |
+|---------|------|-------------|
+| total_spend | Continuous | Historical monetary value |
+| avg_order_value | Continuous | Average transaction size |
+| order_count | Discrete | Number of purchases |
+| ticket_count | Discrete | Number of support tickets |
+| subscription_tier | Ordinal | Basic / Standard / Premium |
+| country | Nominal | Customer geography |
+| preferred_category | Nominal | Dominant product category |
+| customer_segment | Nominal | New / Repeat / Loyal / One-time |
+| days_since_last_order | Continuous | Recency signal |
 
 ---
 
 ## Predictive AI Layer: EDA and ML Pipeline
 
-The Predictive AI layer follows a structured machine learning workflow:
+### Exploratory Data Analysis (EDA)
+- Distribution and correlation analysis
+- Outlier and missing value assessment
+- Segmentation profiling
 
-### 1. Exploratory Data Analysis (EDA)
-- Distribution analysis of continuous variables (spend, order value)
-- Frequency analysis of discrete and categorical variables
-- Correlation and relationship exploration
-- Outlier and missing value assessment on the Gold feature table
-- Segmentation insights (by tier, country, segment)
-
-### 2. ML Pipeline
+### ML Pipeline
 ```
-Gold Feature Table
-       ↓
-Train-Test Split
-       ↓
-Preprocessing (scaling, encoding)
-       ↓
-Model Training (XGBoost / LightGBM Regression)
-       ↓
-Evaluation (RMSE, MAE, R²)
-       ↓
-Model Registration & Scoring
-       ↓
-Predictions written back for Power BI & Prescriptive layer
+Gold Feature Table → Train-Test Split → Preprocessing 
+→ Model Training (XGBoost/LightGBM) → Evaluation → Scoring
 ```
 
-- **Target variables**: CLV, next order value, ticket volume, satisfaction score
-- **Algorithms**: Gradient Boosting Regression (primary), with Ridge as baseline
-- **Validation**: Cross-validation and hold-out test set
-- **Outputs**: Customer-level predictions consumed by dashboards and the Generative AI layer
+---
+
+## Technology Decisions
+
+| Component | Choice | Rationale |
+|-----------|--------|-----------|
+| Raw Storage | MS SQL Server | Strong relational handling, already available |
+| Transformation | Fabric + SQL | Medallion support, Power BI integration |
+| Modeling | Python (scikit-learn + XGBoost) | Flexibility, reproducibility, portfolio clarity |
+| Visualization | Power BI | Native connectivity, business-user friendly |
+| Version Control | GitHub | Collaboration and artifact management |
+
+---
+
+## Risks & Mitigations
+
+| Risk | Mitigation |
+|------|------------|
+| Poor data quality | Bronze-to-Silver cleaning rules + monitoring |
+| Model drift | Scheduled retraining and performance tracking |
+| Cold-start customers | Segment-based defaults and proxy features |
+| Low explainability | SHAP values + Generative AI narratives |
+| Trial/platform limits | Local Python fallback for modeling |
+
+---
+
+## Project Phases
+
+1. **Foundation** — Bronze ingestion and data quality
+2. **Preparation** — Silver cleaning and Gold feature engineering
+3. **Analytics** — Descriptive and Diagnostic dashboards
+4. **Predictive** — EDA + ML Pipeline development
+5. **Prescriptive** — Generative AI / RAG layer
+6. **Operationalization** — Scoring, monitoring, and documentation
 
 ---
 
 ## Data Landscape
 
-| Data Type | Examples | Variable Types Present |
-|-----------|----------|------------------------|
-| **Structured** | Customer profiles, transactions, support tickets | Continuous, Discrete, Nominal, Ordinal |
-| **Semi-Structured** | Clickstream events (JSON), application logs | Discrete, Continuous, Nominal |
-| **Unstructured** | Product reviews, chat transcripts, call notes | Text (engineered into Continuous & Ordinal) |
-
-The data contains realistic quality issues (duplicates, nulls, inconsistent formatting, invalid values) that must be addressed before modeling.
+| Data Type | Examples | Variable Types |
+|-----------|----------|----------------|
+| Structured | Profiles, transactions, tickets | Continuous, Discrete, Nominal, Ordinal |
+| Semi-Structured | Clickstream JSON, logs | Discrete, Continuous, Nominal |
+| Unstructured | Reviews, chats | Engineered Continuous & Ordinal |
 
 ---
 
 ## Proposed Solution Architecture
 
 ```
-Raw Sources
-    ↓
-Bronze → Silver → Gold (Features)
-    ↓
-Descriptive & Diagnostic Analytics (Power BI)
-    ↓
-Predictive AI
-  • EDA
-  • ML Pipeline (Regression)
-    ↓
-Prescriptive AI (RAG / Agent)
-    ↓
-Decisions & Actions
+Raw Sources → Bronze → Silver → Gold
+                ↓
+     Descriptive & Diagnostic (Power BI)
+                ↓
+         Predictive AI (EDA + ML Pipeline)
+                ↓
+      Prescriptive AI (RAG / Agent)
+                ↓
+           Decisions & Actions
 ```
-
----
-
-## Implementation Approach
-
-The project follows DataOps principles with version-controlled SQL and Python artifacts stored in GitHub. Development proceeds through Dev → Test → Prod environments. The ML pipeline is implemented in Python (scikit-learn + XGBoost) for reliability and reproducibility.
 
 ---
 
 ## Expected Outcomes
 
-- Clear visibility into historical customer behavior (Descriptive)
-- Understanding of key drivers (Diagnostic)
-- Accurate, pipeline-driven predictions (Predictive)
-- Actionable recommendations (Prescriptive)
-- Improved targeting, forecasting, and customer experience
+- Historical visibility and driver understanding
+- Reliable customer-level and aggregate predictions
+- Actionable, explainable recommendations
+- Improved retention targeting and forecasting accuracy
 
 ---
 
 ## Discussion Questions
 
 1. What are the primary risks of relying solely on structured transactional data for CLV prediction?
-2. How should the organization balance model accuracy with explainability when deploying the generative AI layer?
-3. What governance mechanisms are required as the platform moves from portfolio demonstration to production?
-4. How might the five business questions evolve as the company matures its data and AI capabilities?
+2. How should the organization balance model accuracy with explainability?
+3. What governance mechanisms are required for production deployment?
+4. How might the business questions evolve as capabilities mature?
 
 ---
 
-*This case was prepared for portfolio and educational purposes to demonstrate end-to-end data architecture, analytics maturity, predictive modeling with EDA and ML pipelines, and generative AI integration.*
+*Prepared for portfolio demonstration of end-to-end data architecture, analytics maturity, predictive modeling, and generative AI integration.*
