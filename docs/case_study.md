@@ -56,6 +56,34 @@ The data contains realistic quality issues (duplicates, nulls, inconsistent form
 
 The company adopts a **Medallion Architecture** implemented across MS SQL Server and Microsoft Fabric:
 
+```
+Raw Sources (Structured, Semi-Structured, Unstructured)
+        ↓
+┌────────────────────────┐
+│   BRONZE (Raw)        │  ← MS SQL Server
+│   Preserve quality    │
+│   issues              │
+└──────────┬─────────────┘
+             ↓
+┌────────────────────────┐
+│   SILVER (Cleaned)    │  ← Fabric / SQL
+│   Standardized        │
+│   Deduplicated        │
+└──────────┬─────────────┘
+             ↓
+┌────────────────────────┐
+│   GOLD (Features)     │  ← Customer 360 table
+│   Model-ready         │
+│   variables           │
+└──────────┬─────────────┘
+             ↓
+    Predictive AI (Regression)
+             ↓
+    Generative AI (RAG / Agent)
+             ↓
+      Power BI + Decisions
+```
+
 - **Bronze Layer**: Raw data landed with minimal transformation. Quality issues are preserved for auditability.
 - **Silver Layer**: Cleaned, conformed, and standardized data. Duplicates removed, invalid values handled, consistent categorization applied.
 - **Gold Layer**: Business-ready customer feature table containing engineered variables suitable for regression modeling.
