@@ -1,6 +1,24 @@
 # EDA and ML Pipeline Documentation
 ## Customer Lifetime Value Prediction Platform
 
+## Architectural Decision: Medallion in SQL Server First
+
+### Why Medallion Architecture Was Implemented in SQL Server Before Fabric
+
+| Reason | Explanation |
+|--------|-------------|
+| **Tool Availability** | MS SQL Server was immediately available with no trial limitations or capacity constraints. |
+| **SQL Competency Demonstration** | Building Bronze, Silver, and Gold layers in SQL showcased core data engineering skills (DDL, DML, data quality, joins, aggregations). |
+| **Data Quality Control** | SQL provided precise, auditable control over cleaning rules and transformations on structured data. |
+| **Risk Reduction** | Fabric trial environments have usage limits and expiration. Completing the foundational layers in SQL avoided dependency on trial constraints. |
+| **Separation of Concerns** | SQL Server handled reliable structured data processing; Fabric is positioned for analytics serving, Power BI integration, and optional large-scale processing. |
+| **Portfolio Clarity** | The approach demonstrates ability to work across both traditional (SQL) and modern (Fabric) platforms. |
+
+### Logical Conclusion
+The Medallion architecture was intentionally built in SQL Server to establish a stable, auditable, and skill-demonstrating foundation. Once the Gold layer was validated, the platform transitions to Microsoft Fabric for consumption, visualization, and future scalability. This hybrid approach is pragmatic, low-risk, and professionally defensible.
+
+---
+
 ## Environment Strategy
 
 | Environment | Data Volume | Purpose |
@@ -28,80 +46,43 @@ After the Gold table is finalized in SQL Server, the following steps move the pl
 
 ### Step 4: Create Lakehouse Table
 - Load the file into a Delta table named `gold_customer_features`.
-- This becomes the source for Power BI and optional Fabric notebooks.
 
 ### Step 5: Environment Samples in Fabric
-- Dev sample (10%): Create a view or table `gold_features_dev`
-- Test sample (50%): Create `gold_features_test`
-- Prod: Use the full `gold_customer_features` table + future incremental loads
+- Dev (10%), Test (50%), Prod (100% + future)
 
 ### Step 6: Power BI Connection
-- Build Power BI reports directly on the Fabric Lakehouse tables.
-- Support Descriptive and Diagnostic analytics.
+- Connect Power BI to Fabric Lakehouse tables.
 
-### Step 7: Optional Fabric Notebook Execution
-- Run scoring notebooks inside Fabric against the Lakehouse tables if desired.
-- Alternatively, continue scoring in Python locally and write results back.
+### Step 7: Optional Notebook Execution
+- Scoring can run in Fabric notebooks or remain in Python with results written back.
 
 ---
 
 ## Stage 1: Data Extraction
-- Primary source: Fabric Lakehouse table `gold_customer_features`
-- Fallback: SQL Server (during transition)
-- Create environment-specific samples (Dev 10%, Test 50%, Prod 100%)
+- Primary source after transition: Fabric Lakehouse
+- Dev / Test / Prod sampling strategy remains unchanged
 
-## Stage 2: Exploratory Data Analysis (EDA) — Performed in Dev
-- Summary statistics
-- Distribution plots
-- Correlation analysis
-- Missing value and outlier review
-- Segment profiling
+## Stage 2: Exploratory Data Analysis (EDA)
+- Performed primarily on Dev (10%) sample
 
 ## Stage 3: Target Definition
-- Primary target: Predicted 12-month CLV
-- Secondary targets: Next order value, ticket volume, satisfaction
+- Predicted 12-month CLV (primary)
 
-## Stage 4: Train-Test Split
-- Applied within Dev and Test environments
-
-## Stage 5: Preprocessing Pipeline
-- Scaling, encoding, imputation via scikit-learn Pipeline
-
-## Stage 6: Model Training (Dev)
-- XGBoost / LightGBM Regressor (primary)
-- Ridge Regression (baseline)
-
-## Stage 7: Evaluation (Test)
-- RMSE, MAE, R²
-- Feature importance and residual analysis
-
-## Stage 8: Model Promotion
-- Serialize pipeline
-- Store artifact for Prod scoring
-
-## Stage 9: Production Scoring
-- Score full Gold table in Fabric (or locally)
-- Write predictions to `gold_clv_predictions`
-- Support incremental/future data
-
-## Stage 10: Monitoring Provision
-- Prediction distribution tracking
-- Drift detection readiness
+## Stage 4–10: ML Pipeline Stages
+- Preprocessing, training (Dev), evaluation (Test), promotion, production scoring (Prod), and monitoring remain as previously defined.
 
 ---
 
 ## End-to-End Flow
 
 ```
-SQL Server (Bronze/Silver/Gold)
+SQL Server (Medallion: Bronze → Silver → Gold)
         ↓
-   Export / Pipeline
+   Architectural Foundation Complete
         ↓
-Microsoft Fabric Lakehouse (Gold)
+Microsoft Fabric Lakehouse
         ↓
 Dev (10%) / Test (50%) / Prod (100%+future)
         ↓
-EDA → ML Pipeline → Scoring
-        ↓
-Power BI + Predictions
+EDA → ML Pipeline → Scoring → Power BI
 ```
