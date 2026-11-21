@@ -3,13 +3,13 @@
 
 **Industry**: Digital Retail & Subscription  
 **Company Size**: Mid-sized (250,000 customers)  
-**Focus**: Predictive Analytics, Medallion Architecture, Regression Modeling  
+**Focus**: Descriptive, Diagnostic, Predictive & Prescriptive Analytics  
 
 ---
 
 ## Abstract
 
-A mid-sized digital retail and subscription company seeks to move from reactive customer management to proactive, value-based decision making. With customer data scattered across structured transactional systems, semi-structured digital events, and unstructured feedback channels, the organization lacks a unified view of future customer value. This case examines how the company designs and implements a Customer Lifetime Value (CLV) prediction platform using medallion architecture, regression-based predictive AI, and generative AI for explainability.
+A mid-sized digital retail and subscription company seeks to move from reactive customer management to proactive, value-based decision making. With customer data scattered across structured transactional systems, semi-structured digital events, and unstructured feedback channels, the organization lacks a unified view of future customer value. This case examines how the company designs and implements a Customer Lifetime Value (CLV) prediction platform that progresses through descriptive, diagnostic, predictive, and prescriptive analytics using medallion architecture and AI.
 
 ---
 
@@ -40,6 +40,17 @@ Leadership has identified five critical business questions that, if answered rel
 
 ---
 
+## Analytics Maturity Path
+
+| Analytics Type | Question Answered | How It Is Delivered in This Platform |
+|----------------|-------------------|--------------------------------------|
+| **Descriptive** | What happened? | Power BI dashboards on Gold features (spend, orders, tickets, segments) |
+| **Diagnostic** | Why did it happen? | Drill-down analysis, cohort views, and driver exploration in Power BI |
+| **Predictive** | What will happen? | Regression models predicting CLV, next order value, ticket volume, and satisfaction |
+| **Prescriptive** | What should we do? | Generative AI / RAG agent recommending next-best actions based on predictions |
+
+---
+
 ## Data Landscape
 
 | Data Type | Examples | Variable Types Present |
@@ -61,54 +72,44 @@ Raw Sources (Structured, Semi-Structured, Unstructured)
         ↓
 ┌────────────────────────┐
 │   BRONZE (Raw)        │  ← MS SQL Server
-│   Preserve quality    │
-│   issues              │
 └──────────┬─────────────┘
              ↓
 ┌────────────────────────┐
-│   SILVER (Cleaned)    │  ← Fabric / SQL
-│   Standardized        │
-│   Deduplicated        │
+│   SILVER (Cleaned)    │
 └──────────┬─────────────┘
              ↓
 ┌────────────────────────┐
-│   GOLD (Features)     │  ← Customer 360 table
-│   Model-ready         │
-│   variables           │
+│   GOLD (Features)     │  ← Descriptive & Diagnostic
 └──────────┬─────────────┘
              ↓
     Predictive AI (Regression)
              ↓
-    Generative AI (RAG / Agent)
+    Prescriptive AI (RAG / Agent)
              ↓
       Power BI + Decisions
 ```
 
-- **Bronze Layer**: Raw data landed with minimal transformation. Quality issues are preserved for auditability.
-- **Silver Layer**: Cleaned, conformed, and standardized data. Duplicates removed, invalid values handled, consistent categorization applied.
-- **Gold Layer**: Business-ready customer feature table containing engineered variables suitable for regression modeling.
-
-On top of the Gold layer:
-- **Predictive AI**: Gradient boosting regression models (XGBoost/LightGBM) predict CLV and related continuous/discrete outcomes.
-- **Generative AI**: A retrieval-augmented generation (RAG) layer explains model scores in natural language and recommends next-best actions.
-
-Consumption occurs through Power BI dashboards and an internal AI agent interface.
+- **Bronze Layer**: Raw data landed with minimal transformation.
+- **Silver Layer**: Cleaned, conformed, and standardized data.
+- **Gold Layer**: Business-ready features supporting descriptive and diagnostic analytics.
+- **Predictive AI**: Regression models answering “what will happen?”
+- **Prescriptive AI**: Generative AI layer recommending “what should we do?”
 
 ---
 
 ## Implementation Approach
 
-The project follows DataOps principles with version-controlled SQL and Python artifacts stored in GitHub. Development proceeds through Dev → Test → Prod environments. Modeling is performed in Python for reliability, while Fabric serves feature preparation and Power BI delivers visualization.
+The project follows DataOps principles with version-controlled SQL and Python artifacts stored in GitHub. Development proceeds through Dev → Test → Prod environments. Modeling is performed in Python for reliability, while Fabric serves feature preparation and Power BI delivers visualization across all four analytics types.
 
 ---
 
 ## Expected Outcomes
 
-- Accurate, customer-level CLV predictions
-- Improved targeting of high-value customers
-- Better quarterly revenue forecasting
-- Proactive support and experience management
-- Explainable AI outputs that business users can trust and act upon
+- Clear visibility into historical customer behavior (Descriptive)
+- Understanding of key drivers (Diagnostic)
+- Accurate forward-looking predictions (Predictive)
+- Actionable recommendations (Prescriptive)
+- Improved targeting, forecasting, and customer experience
 
 ---
 
@@ -121,4 +122,4 @@ The project follows DataOps principles with version-controlled SQL and Python ar
 
 ---
 
-*This case was prepared for portfolio and educational purposes to demonstrate end-to-end data architecture, predictive modeling, and generative AI integration.*
+*This case was prepared for portfolio and educational purposes to demonstrate end-to-end data architecture, analytics maturity, predictive modeling, and generative AI integration.*
