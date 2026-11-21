@@ -46,8 +46,43 @@ Leadership has identified five critical business questions that, if answered rel
 |----------------|-------------------|--------------------------------------|
 | **Descriptive** | What happened? | Power BI dashboards on Gold features (spend, orders, tickets, segments) |
 | **Diagnostic** | Why did it happen? | Drill-down analysis, cohort views, and driver exploration in Power BI |
-| **Predictive** | What will happen? | Regression models predicting CLV, next order value, ticket volume, and satisfaction |
+| **Predictive** | What will happen? | EDA + ML Pipeline with regression models predicting CLV and related outcomes |
 | **Prescriptive** | What should we do? | Generative AI / RAG agent recommending next-best actions based on predictions |
+
+---
+
+## Predictive AI Layer: EDA and ML Pipeline
+
+The Predictive AI layer follows a structured machine learning workflow:
+
+### 1. Exploratory Data Analysis (EDA)
+- Distribution analysis of continuous variables (spend, order value)
+- Frequency analysis of discrete and categorical variables
+- Correlation and relationship exploration
+- Outlier and missing value assessment on the Gold feature table
+- Segmentation insights (by tier, country, segment)
+
+### 2. ML Pipeline
+```
+Gold Feature Table
+       ↓
+Train-Test Split
+       ↓
+Preprocessing (scaling, encoding)
+       ↓
+Model Training (XGBoost / LightGBM Regression)
+       ↓
+Evaluation (RMSE, MAE, R²)
+       ↓
+Model Registration & Scoring
+       ↓
+Predictions written back for Power BI & Prescriptive layer
+```
+
+- **Target variables**: CLV, next order value, ticket volume, satisfaction score
+- **Algorithms**: Gradient Boosting Regression (primary), with Ridge as baseline
+- **Validation**: Cross-validation and hold-out test set
+- **Outputs**: Customer-level predictions consumed by dashboards and the Generative AI layer
 
 ---
 
@@ -65,41 +100,27 @@ The data contains realistic quality issues (duplicates, nulls, inconsistent form
 
 ## Proposed Solution Architecture
 
-The company adopts a **Medallion Architecture** implemented across MS SQL Server and Microsoft Fabric:
-
 ```
-Raw Sources (Structured, Semi-Structured, Unstructured)
-        ↓
-┌────────────────────────┐
-│   BRONZE (Raw)        │  ← MS SQL Server
-└──────────┬─────────────┘
-             ↓
-┌────────────────────────┐
-│   SILVER (Cleaned)    │
-└──────────┬─────────────┘
-             ↓
-┌────────────────────────┐
-│   GOLD (Features)     │  ← Descriptive & Diagnostic
-└──────────┬─────────────┘
-             ↓
-    Predictive AI (Regression)
-             ↓
-    Prescriptive AI (RAG / Agent)
-             ↓
-      Power BI + Decisions
+Raw Sources
+    ↓
+Bronze → Silver → Gold (Features)
+    ↓
+Descriptive & Diagnostic Analytics (Power BI)
+    ↓
+Predictive AI
+  • EDA
+  • ML Pipeline (Regression)
+    ↓
+Prescriptive AI (RAG / Agent)
+    ↓
+Decisions & Actions
 ```
-
-- **Bronze Layer**: Raw data landed with minimal transformation.
-- **Silver Layer**: Cleaned, conformed, and standardized data.
-- **Gold Layer**: Business-ready features supporting descriptive and diagnostic analytics.
-- **Predictive AI**: Regression models answering “what will happen?”
-- **Prescriptive AI**: Generative AI layer recommending “what should we do?”
 
 ---
 
 ## Implementation Approach
 
-The project follows DataOps principles with version-controlled SQL and Python artifacts stored in GitHub. Development proceeds through Dev → Test → Prod environments. Modeling is performed in Python for reliability, while Fabric serves feature preparation and Power BI delivers visualization across all four analytics types.
+The project follows DataOps principles with version-controlled SQL and Python artifacts stored in GitHub. Development proceeds through Dev → Test → Prod environments. The ML pipeline is implemented in Python (scikit-learn + XGBoost) for reliability and reproducibility.
 
 ---
 
@@ -107,7 +128,7 @@ The project follows DataOps principles with version-controlled SQL and Python ar
 
 - Clear visibility into historical customer behavior (Descriptive)
 - Understanding of key drivers (Diagnostic)
-- Accurate forward-looking predictions (Predictive)
+- Accurate, pipeline-driven predictions (Predictive)
 - Actionable recommendations (Prescriptive)
 - Improved targeting, forecasting, and customer experience
 
@@ -122,4 +143,4 @@ The project follows DataOps principles with version-controlled SQL and Python ar
 
 ---
 
-*This case was prepared for portfolio and educational purposes to demonstrate end-to-end data architecture, analytics maturity, predictive modeling, and generative AI integration.*
+*This case was prepared for portfolio and educational purposes to demonstrate end-to-end data architecture, analytics maturity, predictive modeling with EDA and ML pipelines, and generative AI integration.*
